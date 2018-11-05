@@ -31,6 +31,10 @@ import xlwt
 import re
 import sys
 import os
+
+ROOTDIR = os.path.dirname(os.path.realpath(__file__))
+OUTPUT=os.path.join(ROOTDIR, "output")
+
 def write_output(output, output1, filename):
 	wb = xlwt.Workbook(encoding="utf-8")
 	sheet1 = wb.add_sheet("发货单", cell_overwrite_ok = True)
@@ -176,7 +180,7 @@ def write_output(output, output1, filename):
 		sheet2.write_merge(flavor_list_len + 1, flavor_list_len + len(output1[key]["flavors"]), 8, 8, str(total_number) + number_unit, style)
 		flavor_list_len += len(output1[key]["flavors"])
 
-	wb.save(filename + ".xls")
+	wb.save(os.path.join(OUTPUT, filename + "_output.xls"))
 
 def useage():
 	print '''
@@ -191,7 +195,12 @@ if __name__ == "__main__":
 	# 判断文件是否存在
 	if not os.path.isfile(sys.argv[1]):
 		useage()
+	# 创建输出目录
+
+	if not os.path.isdir(OUTPUT):
+		os.mkdir(OUTPUT)
 	filename = os.path.splitext(os.path.basename(sys.argv[1]))[0]
+	print "正在解析", sys.argv[1], "..."
 	with open(sys.argv[1]) as file:
 		csv_file = csv.reader(file)
 		header = next(csv_file)
@@ -221,6 +230,6 @@ if __name__ == "__main__":
 					"flavor": line[4],
 					"number": line[5]
 				})
-		print "正在解析", sys.argv[1], "..."
+		
 		write_output(output1, output2, filename)
 		print "解析完成"		
